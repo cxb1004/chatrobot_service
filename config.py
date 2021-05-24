@@ -27,6 +27,7 @@ class Config:
                 print(e)
         return cls
 
+    @staticmethod
     def get_value(section, option):
         try:
             value = Config.cf.get(section, option)

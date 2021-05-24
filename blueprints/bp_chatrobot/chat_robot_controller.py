@@ -3,14 +3,14 @@ from flask import request, current_app
 from blueprints.bp_chatrobot import blueprint_chatrobot
 from blueprints.bp_chatrobot.common.db_utils import getConnect
 from blueprints.result_json import *
-from modules.chat_robot.common.config import Config
 from modules.chat_robot.common.log_robot_service import Log
 from modules.chat_robot.common.utils import *
 from modules.chat_robot.robot_service import RobotService
+from config import Config
 
 robotService = RobotService()
-moduleConfig = Config()
-slog = Log(moduleConfig)
+robotConfig = Config()
+slog = Log(robotConfig)
 
 
 @blueprint_chatrobot.route('/', methods=['POST'])

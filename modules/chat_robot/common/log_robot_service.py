@@ -1,7 +1,5 @@
 import logging.handlers
 
-from modules.chat_robot.common.config import Config
-
 
 class Log():
     __log = None
@@ -9,15 +7,14 @@ class Log():
     def __init__(self, _config):
         # 单例，防止出现重复的日志
         if Log.__log is None:
-            _config = Config()
-            flask_logger_name = _config.get_value('log', 'default_logger_name')
-            flask_logger_format = _config.get_value('log', 'default_logger_format')
-            flask_logger_level = logging.getLevelName(_config.get_value('log', 'default_logger_level'))
-            flask_logger_logfile = _config.get_value('log', 'default_logger_logfile')
-            flask_logger_when = _config.get_value('log', 'default_logger_when')
-            flask_logger_interval = int(_config.get_value('log', 'default_logger_interval'))
-            flask_logger_backup_count = int(_config.get_value('log', 'default_logger_backup_count'))
-            flask_logger_encoding = _config.get_value('log', 'default_logger_encoding')
+            flask_logger_name = _config.get_value('chatrobot', 'default_logger_name')
+            flask_logger_format = _config.get_value('chatrobot', 'default_logger_format')
+            flask_logger_level = logging.getLevelName(_config.get_value('chatrobot', 'default_logger_level'))
+            flask_logger_logfile = _config.get_value('chatrobot', 'default_logger_logfile')
+            flask_logger_when = _config.get_value('chatrobot', 'default_logger_when')
+            flask_logger_interval = int(_config.get_value('chatrobot', 'default_logger_interval'))
+            flask_logger_backup_count = int(_config.get_value('chatrobot', 'default_logger_backup_count'))
+            flask_logger_encoding = _config.get_value('chatrobot', 'default_logger_encoding')
             """
             静态初始化
             """

@@ -1,4 +1,4 @@
-from modules.chat_robot.common.config import Config
+from config import Config
 from modules.chat_robot.common.log_robot_service import Log
 from modules.chat_robot.common.singleton import Singleton
 from modules.chat_robot.common.textSimilarity import CosSim
@@ -27,7 +27,7 @@ class RobotService(metaclass=Singleton):
 
         RobotService.__log.info("chat robot service initial...")
 
-        RobotService.ANSWER_LIMIT = int(RobotService.__robotConfig.get_value("robot", "answers_limit"))
+        RobotService.ANSWER_LIMIT = int(RobotService.__robotConfig.get_value("chatrobot", "answers_limit"))
 
     def getAnswers(self, conn=None, robotID=None, question=None):
         """

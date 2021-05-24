@@ -31,10 +31,10 @@ class Robot:
         # 企业机器人所属行业的行业机器人ID（允许为空）
         self.__industry_robot_id = None
 
-        Robot.ROBOT_UNLOAD_PERIOD = int(_config.get_value("robot", "expire_time"))
-        Robot.SIM_IDX_CORPUS = float(_config.get_value("robot", "sim_idx_corpus"))
-        Robot.SIM_IDX_MODEL = float(_config.get_value("robot", "sim_idx_model"))
-        Robot.ANSWER_LIMIT = int(_config.get_value("robot", "answers_limit"))
+        Robot.ROBOT_UNLOAD_PERIOD = int(_config.get_value("chatrobot", "expire_time"))
+        Robot.SIM_IDX_CORPUS = float(_config.get_value("chatrobot", "sim_idx_corpus"))
+        Robot.SIM_IDX_MODEL = float(_config.get_value("chatrobot", "sim_idx_model"))
+        Robot.ANSWER_LIMIT = int(_config.get_value("chatrobot", "answers_limit"))
 
     def answer(self, simUtil=None, question=None):
         """
