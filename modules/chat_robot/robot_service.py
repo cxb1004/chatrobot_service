@@ -153,7 +153,7 @@ class RobotService(metaclass=Singleton):
         # 2、获得机器人的基本信息,组件机器人实例
         cRobot = Robot(RobotService.__robotConfig)
         try:
-            cRobot.assemble(conn=conn, robotID=companyRobotID)
+            cRobot.assemble(conn=conn, robotID=companyRobotID, type=0)
         except Exception as ex:
             RobotService.__log.error(str(ex))
             errMsg = "加载机器人{}失败，请联系系统管理员！".format(companyRobotID)
@@ -166,9 +166,9 @@ class RobotService(metaclass=Singleton):
         # 4、如果行业机器人ID不为空，就载入行业机器人
         industry_robot_id = cRobot.getIndustryRobotID()
         if industry_robot_id is not None and industry_robot_id not in RobotService.__robotList.keys():
-            industry_robot = Robot()
-            industry_robot.assemble(industry_robot_id)
-            RobotService.__robotList = {industry_robot_id, industry_robot}
+            industry_robot = Robot(RobotService.__robotConfig)
+            industry_robot.assemble(conn=conn, robotID=industry_robot_id, type=1)
+            RobotService.__robotList[industry_robot_id] = industry_robot
 
     def loadIndustryRobot(self, conn=None, industryID=None, industryRobotID=None):
         pass
@@ -213,13 +213,15 @@ class RobotService(metaclass=Singleton):
         """
         if i_answers is not None:
             c_answers.extend(i_answers)
-        c_answers.sort(key=lambda i: i['sim_value'], reverse=True)
-
-        if c_answers.__len__() > RobotService.ANSWER_LIMIT:
-            cnt = RobotService.ANSWER_LIMIT
+        if c_answers is not None:
+            c_answers.sort(key=lambda i: i['sim_value'], reverse=True)
+            if c_answers.__len__() > RobotService.ANSWER_LIMIT:
+                cnt = RobotService.ANSWER_LIMIT
+            else:
+                cnt = c_answers.__len__()
+            return c_answers[:cnt]
         else:
-            cnt = c_answers.__len__()
-        return c_answers[:cnt]
+            return []
 
     def getChatRobotList(self):
         return self.__robotList

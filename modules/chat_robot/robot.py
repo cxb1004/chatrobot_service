@@ -88,7 +88,7 @@ class Robot:
         answers = self.sortAndLimit(company_answer)
         return answers
 
-    def assemble(self, conn=None, robotID=None):
+    def assemble(self, conn=None, robotID=None, type=None):
         """
        根据rbt_id组装机器人服务对象
        组装内容包括
@@ -99,7 +99,7 @@ class Robot:
        __model_knowledge: 全部的知识库，用来给模型判断加精准度指数
        __industry_robot_id：企业机器人所属行业的行业机器人ID
        1、设置rbt_id
-       2、根据rbt_id查询机器人信息：rbt_robot表、rbt_industry表联合查询
+       2、根据rbt_id查询机器人信息：rbt_robot表
        3、根据industry_id字段，查询是否有企业机器人ID
        3.1 如果industry_id=None，
        4、
@@ -112,27 +112,50 @@ class Robot:
         # 设置自动卸载时间
         self.__unloaded_at = getRobotUnloadTime(Robot.ROBOT_UNLOAD_PERIOD)
 
-        sql = '''select robot.rbt_id, robot.company_id, robot.company_account, robot.sim_idx,industry.robot_id industry_robot_id from ai_chatrobot.rbt_robot robot left join ai_chatrobot.rbt_industry industry on robot.industry_id=industry.id where robot.rbt_id=:rbt_id and status=:status and type=:type and robot.deleted_at is null'''
-        params = {'rbt_id': self.__rbt_id, 'status': RobotConstants.RBT_STATUS_ON,
-                  'type': RobotConstants.RBT_TYPE_COMPANY}
-        queryData = queryBySQL(conn=conn, sql=sql, params=params)
-        if queryData.__len__() == 1:
-            data = queryData[0]
-            self.__company_id = data.get('company_id')
-            self.__company_account = data.get('company_account')
-            if data.get('sim_idx') is None:
-                self.__sim_idx = float(data.get('sim_idx'))
-            else:
-                self.__sim_idx = Robot.SIM_IDX_CORPUS
-            self.__industry_robot_id = data.get('industry_robot_id')
+        if type == 0:
+            sql = '''select robot.rbt_id, robot.company_id, robot.company_account, robot.sim_idx, industry.rbt_id industry_robot_id from rbt_robot robot left join rbt_robot industry on industry.type=:type_i and robot.industry_id=industry.industry_id and industry.deleted_at is null where robot.rbt_id=:rbt_id and robot.status=:status and robot.type=:type_c and robot.deleted_at is null'''
+            params = {'rbt_id': self.__rbt_id, 'status': RobotConstants.RBT_STATUS_ON,
+                      'type_c': RobotConstants.RBT_TYPE_COMPANY, 'type_i': RobotConstants.RBT_TYPE_INDUSTRY}
+            queryData = queryBySQL(conn=conn, sql=sql, params=params)
+            if queryData.__len__() == 1:
+                data = queryData[0]
+                self.__company_id = data.get('company_id')
+                self.__company_account = data.get('company_account')
+                if data.get('sim_idx') is None:
+                    self.__sim_idx = float(data.get('sim_idx'))
+                else:
+                    self.__sim_idx = Robot.SIM_IDX_CORPUS
+                self.__industry_robot_id = data.get('industry_robot_id')
 
-            self.__corpus, self.__knowledge = self.updateRobotKnowledge(conn=conn)
-            # # 模型组装功能代做
-            # self.assemble_model(rbt_id)
-        else:
-            # 理论上应该只有一条记录，无记录或是多条记录都是错误的
-            errMsg = "组建机器人失败: 机器人[{}]不存在".format(self.__rbt_id)
-            raise Exception(errMsg)
+                self.__corpus, self.__knowledge = self.updateRobotKnowledge(conn=conn)
+                # # 模型组装功能代做
+                # self.assemble_model(rbt_id)
+            else:
+                # 理论上应该只有一条记录，无记录或是多条记录都是错误的
+                errMsg = "组建机器人失败: 机器人[{}]不存在".format(self.__rbt_id)
+                raise Exception(errMsg)
+        elif type == 1:
+            sql = '''select rbt_id, company_id,company_account, sim_idx from rbt_robot where type=1 and rbt_id=:rbt_id and deleted_at is null and status=:status and type=:type_i'''
+            params = {'rbt_id': self.__rbt_id, 'status': RobotConstants.RBT_STATUS_ON,
+                      'type_i': RobotConstants.RBT_TYPE_INDUSTRY}
+            queryData = queryBySQL(conn=conn, sql=sql, params=params)
+            if queryData.__len__() == 1:
+                data = queryData[0]
+                self.__company_id = data.get('company_id')
+                self.__company_account = data.get('company_account')
+                if data.get('sim_idx') is None:
+                    self.__sim_idx = float(data.get('sim_idx'))
+                else:
+                    self.__sim_idx = Robot.SIM_IDX_CORPUS
+                self.__industry_robot_id = None
+
+                self.__corpus, self.__knowledge = self.updateRobotKnowledge(conn=conn)
+                # # 模型组装功能代做
+                # self.assemble_model(rbt_id)
+            else:
+                # 理论上应该只有一条记录，无记录或是多条记录都是错误的
+                errMsg = "组建机器人失败: 机器人[{}]不存在".format(self.__rbt_id)
+                raise Exception(errMsg)
 
     def getIndustryRobotID(self):
         if self.__industry_robot_id is None:
